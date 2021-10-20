@@ -37,27 +37,26 @@ class UI {
   showBalance(){
     const expense = this.totalExpense();
     const total = parseInt(this.budgetAmount.textContent) - expense;
+    this.balanceAmount.textContent = total;
 
     if(total < 0){
       this.balanceAmount.classList.remove('showGreen','showBlack');
       this.balanceAmount.classList.add('showRed');
-    }else if(total > 0){
+    }
+    else if(total > 0){
       this.balanceAmount.classList.remove('showRed','showBlack');
       this.balanceAmount.classList.add('showGreen');
     }
-
-    this.balanceAmount.textContent = total;
   }
   submitExpense(){
     const expenseValue = this.expenseInput.value;
     const amountValue = this.amountInput.value;
 
-    const self = this;
-
     if(expenseValue === '' || amountValue === '' || amountValue < 0){
       this.expenseFeedback.classList.add('showItem');
       this.expenseFeedback.innerHTML = `<p>Value must be positive</p>`;
 
+      const self = this;
       setTimeout(function(){
         self.expenseFeedback.classList.remove('showItem');
       },3000);
@@ -69,7 +68,7 @@ class UI {
       let expense = {
         id:this.itemID,
         title:expenseValue,
-        amount:amountValue
+        amount:amount
       }
       this.itemID++;
       this.itemList.push(expense);
@@ -89,7 +88,7 @@ addExpense(expense){
 
     <div class="expense-icons list-item">
 
-    <a href="#" class="edit-icon mx-2" data-id="${expense.id}" onclick="editExpense(${expense})">
+    <a href="#" class="edit-icon mx-2" data-id="${expense.id}">
       <i class="fas fa-edit"></i>
     </a>
     <a href="#" class="delete-icon" data-id="${expense.id}">
@@ -97,19 +96,19 @@ addExpense(expense){
     </a>
     </div>
   </div>
- `
+ `;
  this.expenseList.appendChild(div);
 }
   // total Expense;
   totalExpense(){
     let total = 0;
     if(this.itemList.length > 0){
-      total += parseInt(this.itemList.reduce(function(account,current){
-        account += parseInt(current.amount);
-        return parseInt(account);
-      },0));
+      total = this.itemList.reduce(function(acc,curr){
+        acc += curr.amount;
+        return acc;
+      },0);
     }
-    this.expenseAmount.textContent = parseInt(total);
+    this.expenseAmount.textContent = total;
     return total;
   }
   editExpense(element){
@@ -131,7 +130,18 @@ addExpense(expense){
     this.itemList = tempList;
     this.showBalance();
   }
-  deleteExpense(element){}
+  deleteExpense(element){
+    let id = parseInt(element.dataset.id);
+    let parent = element.parentElement.parentElement.parentElement;
+    this.expenseList.removeChild(parent);
+
+    let tempList = this.itemList.filter(function(item){
+      return item.id !== id;
+    });
+
+    this.itemList = tempList;
+    this.showBalance();
+  }
 }
 function eventListeners(){
   const budgetForm = document.getElementById('budget-form');
